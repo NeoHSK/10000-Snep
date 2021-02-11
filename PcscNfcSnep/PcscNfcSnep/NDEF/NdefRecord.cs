@@ -1,11 +1,26 @@
-﻿using System;
+﻿using PcscNfcSnep.POC;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace PcscNfcSnep.NDEF
 {
-    class NdefRecord
+    public class NdefRecord
     {
+        public enum EMessageInfoFlags
+        {
+            None = 0,
+            MB = 0x1 << 7,
+            ME = 0x1 << 6,
+            CF = 0x1 << 5,
+            SR = 0x1 << 4,
+            IL = 0x1 << 3,
+            TNF = 0x3,
+            Max = byte.MaxValue
+        }
+
+        public EMessageInfoFlags MessageInfoFlag { get; set; }
+        
         public enum ETypeNameFormat
         {
             Empty = 0,
@@ -15,23 +30,44 @@ namespace PcscNfcSnep.NDEF
         }
 
         public ETypeNameFormat TypeNameFormat { get; set; }
-        
-        enum EMessageInfoFlags
+
+        private byte[] mPayload;
+
+        public byte[] Payload
         {
-            MB = 0x1 << 7,
-            ME = 0x1 << 6,
-            CF = 0x1 << 5,
-            SR = 0x1 << 4,
-            IL = 0x1 << 3,
-            TNF = 0x3,
+            get { return mPayload; }
+            set 
+            {
+                if(value == null)
+                {
+                    mPayload = null;
+                    return;
+                }
+                mPayload = new byte[value.Length];
+                Array.Copy(value, mPayload, value.Length);
+            }
         }
 
-        const int MAX_PAYLOAD_SIZE = 1024;
-
-        public NdefRecord(ETypeNameFormat eTypeNameFormat, byte[] payload)
+        public NdefRecord()
         {
-            TypeNameFormat = eTypeNameFormat;
+            TypeNameFormat = ETypeNameFormat.Empty;
+        }
 
+        public NdefRecord(Serialization serialization)
+        {
+            TypeNameFormat = ETypeNameFormat.Unknown;
+            Payload = serialization.Serialize();
+        }
+
+        public NdefRecord(NdefRecord ndefRecord)
+        {
+            TypeNameFormat = ndefRecord.TypeNameFormat;
+
+            if(ndefRecord.Payload != null)
+            {
+                mPayload = new byte[ndefRecord.Payload.Length];
+                Array.Copy(ndefRecord.Payload, mPayload, ndefRecord.Payload.Length);
+            }
         }
     }
 }

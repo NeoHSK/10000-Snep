@@ -5,7 +5,7 @@ using System.Text;
 
 namespace PcscNfcSnep.POC
 {
-    abstract class Serialization
+    public abstract class Serialization
     {
         public abstract void ResponseMessage(byte[] rawData);
         public abstract byte[] RequestMessage();
