@@ -7,7 +7,9 @@ namespace PcscNfcSnep.POC
 {
     abstract class Serialization
     {
-        public abstract void ParseMessage(byte[] rawData);
+        public abstract void ResponseMessage(byte[] rawData);
+        public abstract byte[] RequestMessage();
+
         public byte[] Serialize()
         {
             Type type = this.GetType();
@@ -47,7 +49,7 @@ namespace PcscNfcSnep.POC
         private byte[] ConvertToByte(object value)
         {
             if (value is byte) { return new byte[] { (byte)value }; }
-            else if(value is sbyte) { return new byte[] { (byte)value }; }
+            else if(value is sbyte) { return new byte[] { Convert.ToByte((sbyte)value) }; }
             else if (value is ushort) { return BitConverter.GetBytes((ushort)value); }
             else if (value is uint) { return BitConverter.GetBytes((uint)value); }
             else if (value is char[]) { return (byte[])value; }
