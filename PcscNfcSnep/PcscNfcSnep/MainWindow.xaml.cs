@@ -1,4 +1,6 @@
-﻿using System;
+﻿using PcscNfcSnep.NDEF;
+using PcscNfcSnep.POC;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,6 +26,13 @@ namespace PcscNfcSnep
         {
             InitializeComponent();
 
+            NdefRecord ndef = new NdefRecord(new DeviceInfoMessage());
+
+            NdefMessage ndefRecords = new NdefMessage() { ndef};
+
+            var byte1 = ndefRecords.ToByteArray();
+
+            NdefMessage ndefRecords1 = NdefMessage.FromByteArray(byte1);
         }
     }
 }

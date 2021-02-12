@@ -7,7 +7,7 @@ namespace PcscNfcSnep.NDEF
 {
     public class NdefRecord
     {
-        public enum EMessageInfoFlags
+        public enum EMessageInfoFlags 
         {
             None = 0,
             MB = 0x1 << 7,
@@ -15,7 +15,7 @@ namespace PcscNfcSnep.NDEF
             CF = 0x1 << 5,
             SR = 0x1 << 4,
             IL = 0x1 << 3,
-            TNF = 0x3,
+            TNF = 0x7,
             Max = byte.MaxValue
         }
 
@@ -56,7 +56,7 @@ namespace PcscNfcSnep.NDEF
         public NdefRecord(Serialization serialization)
         {
             TypeNameFormat = ETypeNameFormat.Unknown;
-            Payload = serialization.Serialize();
+            Payload = serialization.RequestMessage();
         }
 
         public NdefRecord(NdefRecord ndefRecord)

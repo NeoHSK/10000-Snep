@@ -9,7 +9,7 @@ namespace PcscNfcSnep.NDEF
     {
         static bool messageBegin;
 
-        NdefMessage FromByteArray(byte[] rawData)
+        public static NdefMessage FromByteArray(byte[] rawData)
         {
             uint payloadLength;
 
@@ -79,6 +79,8 @@ namespace PcscNfcSnep.NDEF
 
                     Array.Copy(rawData, ++index, payload, 0, payload.Length);
 
+                    ndefRecord.Payload = payload;
+
                 }
 
                 switch ((NdefRecord.ETypeNameFormat)(ndefRecord.MessageInfoFlag & NdefRecord.EMessageInfoFlags.TNF))
@@ -101,7 +103,7 @@ namespace PcscNfcSnep.NDEF
         }
             
 
-        byte[] ToByteArray()
+        public byte[] ToByteArray()
         {
             if(Count == 0)
             {
@@ -137,7 +139,7 @@ namespace PcscNfcSnep.NDEF
                 {
                     memoryStream.WriteByte(0);
                 }
-                else if (recordHeader == (byte)NdefRecord.EMessageInfoFlags.SR)
+                else if ((recordHeader & (byte)NdefRecord.EMessageInfoFlags.SR) == (byte)NdefRecord.EMessageInfoFlags.SR)
                 {
                     memoryStream.WriteByte((byte)record.Payload.Length);
                 }
