@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using PcscNfcSnep.NDEF;
+using PcscNfcSnep.POC;
+using System;
 using System.Text;
 using static PcscNfcSnep.PCSC.Interop.WinSCard.WinSCard;
 using static PcscNfcSnep.PCSC.Interop.WinSCard.WinSCard.Constants;
@@ -10,20 +10,43 @@ namespace PcscNfcSnep.PCSC.NFC
 {
     public class Reader : IDisposable
     {
-        IntPtr context = IntPtr.Zero;
-        IntPtr mCard = IntPtr.Zero;
-        Reader[] mReaders = null;
+        IntPtr mReader = IntPtr.Zero;
         internal SCARD_READERSTATE ReaderState { get; set; }
 
-        bool IsEstablished
+
+        internal void Handle(SNEP.ECommand eCommand, NdefMessage ndefMessage)
         {
-            get { return context != IntPtr.Zero; }
+            switch (eCommand)
+            {
+                case SNEP.ECommand.Start:
+                    Control(mReader, SNEP.Request(SNEP.CMD_START, ndefMessage));
+                    break;
+                case SNEP.ECommand.Stop:
+                    Control(mReader, SNEP.Request(SNEP.CMD_STOP, ndefMessage));
+                    break;
+                case SNEP.ECommand.PutTimeout:
+                    Control(mReader, SNEP.Request(SNEP.CMD_SET_TIMEOUT, ndefMessage));
+                    break;
+                case SNEP.ECommand.RecieveTimeout:
+                    Control(mReader, SNEP.Request(SNEP.CMD_SET_TIMEOUT2, ndefMessage));
+                    break;
+
+                case SNEP.ECommand.Put:
+
+                    Control(mReader, SNEP.Request(SNEP.CMD_SEND, ndefMessage));
+                    
+                    var res = Control(mReader, SNEP.Request(SNEP.CMD_RECEIVE, null));
+
+                    NdefMessage ndefRecords1 = NdefMessage.FromByteArray(res);
+
+                    ndefRecords1[0].Payload.ToString();
+           
+                 break;
+
+                default: break;
+            }
         }
 
-        public IEnumerable<Reader> Readers
-        {
-            get { return mReaders; }
-        }
 
         internal Reader(string name)
         {
@@ -35,88 +58,30 @@ namespace PcscNfcSnep.PCSC.NFC
         }
 
 
-        internal void  Connect(IntPtr context)
+        internal void Connect(IntPtr context)
         {
-            var ret = Connect(context, ReaderState.szReader, Share.SCARD_SHARE_DIRECT, Protocol.SCARD_PROTOCOL_UNDEFINED);
+            /* restart or error handle*/
+            Connect(context, ReaderState.szReader, Share.SCARD_SHARE_DIRECT, Protocol.SCARD_PROTOCOL_UNDEFINED);
         }
 
         internal void Disconnect()
         {
-            if (mCard != null)
+            if (mReader != null)
             {
-                Disconnect(mCard, Disposition.SCARD_LEAVE_CARD);
-                mCard = IntPtr.Zero;
+                Disconnect(mReader, Disposition.SCARD_LEAVE_CARD);
+                mReader = IntPtr.Zero;
             }
-
-            Cancel();
-            ReleaseContext();
         }
 
         #region WinSCard
-        IntPtr EstablishContext(Scope scope)
-        {
-            var context = IntPtr.Zero;
-            if (!IsEstablished)
-            {
-                var ret = (ReturnCode)NativeMethods.SCardEstablishContext(
-                    (uint)scope,
-                    IntPtr.Zero,
-                    IntPtr.Zero,
-                    out context);
-                if (ret != ReturnCode.SCARD_S_SUCCESS)
-                {
-                    throw new ApplicationException("Failed to execute the SCardEstablishContext: Returned value = " + ret);
-                }
-            }
-            return context;
-        }
-
-        void ReleaseContext()
-        {
-            if (IsEstablished)
-            {
-                var ret = NativeMethods.SCardReleaseContext(context);
-                context = IntPtr.Zero;
-            }
-        }
-
-        unsafe Reader[] ListReaders()
-        {
-            var readersCount = (uint)SCARD_AUTOALLOCATE; // auto alocate
-            var ret = (ReturnCode)NativeMethods.SCardListReaders(
-                context,
-                null,
-                out byte* cReaders,
-                ref readersCount);
-            if (ret != ReturnCode.SCARD_S_SUCCESS)
-            {
-                switch (ret)
-                {
-                    case ReturnCode.SCARD_E_NO_READERS_AVAILABLE:
-                        break;
-
-                    default:
-                        break;
-                }
-            }
-
-            var readers = Utils.SplitStringByNull(cReaders);
-            NativeMethods.SCardFreeMemory(context, cReaders); // free
-
-            return readers.Select(reader => new Reader(reader)).ToArray();
-        }
-        void Cancel()
-        {
-            NativeMethods.SCardCancel(context);
-        }
         ReturnCode Connect(IntPtr context, string readerName, Share share, Protocol protocol)
         {
-            return (ReturnCode)NativeMethods.SCardConnect(
+           return (ReturnCode)NativeMethods.SCardConnect(
                 context,
                 readerName,
                 (uint)share,
                 (uint)protocol,
-                out IntPtr card,
+                out mReader,
                 out uint activeProtocol);
         }
 
@@ -128,22 +93,33 @@ namespace PcscNfcSnep.PCSC.NFC
             }
         }
 
-        ReturnCode Control(IntPtr card, uint controlCode, byte[] inBuffer)
+        dynamic Control(IntPtr reader, byte[] inBuffer)
         {
-            var outBuffer = new byte[100000];
+            /*TODO Control out size*/
+            var outBuffer = new byte[256];
 
-            return (ReturnCode)NativeMethods.SCardControl(
-                card,
+            var ret = (ReturnCode)NativeMethods.SCardControl(
+                reader,
                 (int)PaSoRi.Contrl.SCARD_CTL_CODE,
                 inBuffer,
                 (uint)inBuffer.Length,
                 ref outBuffer[0],
                 (uint)outBuffer.Length,
                 out uint bytesReturned);
+            if (ret != ReturnCode.SCARD_S_SUCCESS)
+            {
+                throw new ApplicationException("Failed to execute the SCardControl: Returned value = " + ret);
+            }
+            return new
+            {
+                OutBuffer = outBuffer,
+                BytesReturned = bytesReturned,
+            };
         }
-        #endregion
-        #region IDisposable 
-        private bool disposedValue;
+#endregion
+
+#region IDisposable 
+private bool disposedValue;
 
         protected virtual void Dispose(bool disposing)
         {

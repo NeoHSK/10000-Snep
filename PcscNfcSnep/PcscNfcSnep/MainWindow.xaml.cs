@@ -1,4 +1,5 @@
 ﻿using PcscNfcSnep.NDEF;
+using PcscNfcSnep.PCSC.NFC;
 using PcscNfcSnep.POC;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,9 @@ namespace PcscNfcSnep
     /// </summary>
     public partial class MainWindow : Window
     {
+        ReaderContext readerContext = new ReaderContext();
+
+
         public MainWindow()
         {
             InitializeComponent();
@@ -37,12 +41,22 @@ namespace PcscNfcSnep
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            using()
+            readerContext.InitializeReader();
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
+            //One by one           
+            NdefMessage ndefRecords = new NdefMessage() { new NdefRecord(new DeviceInfoMessage()) };
 
+            ndefRecords.Clear();
+
+            //Continuous
+            NdefRecord ndef = new NdefRecord(new DeviceInfoMessage());
+            NdefRecord ndef2 = new NdefRecord(new TimeSyncMessage());
+            ndefRecords = new NdefMessage() { ndef , ndef2 };
+
+            readerContext.ReaderControl();
         }
 
         private void Button_Click_2(object sender, RoutedEventArgs e)

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace PcscNfcSnep.NDEF
 {
-    class NdefMessage : List<NdefRecord>
+    public class NdefMessage : List<NdefRecord>
     {
         static bool messageBegin;
 
