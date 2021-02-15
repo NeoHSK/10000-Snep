@@ -13,64 +13,47 @@ namespace PcscNfcSnep.PCSC.NFC
     {
         IntPtr context = IntPtr.Zero;
         Reader[] mReaders = null;
+        Reader mReader;
+
         private bool disposedValue;
+        readonly string mReaderName = "Sony FeliCa Port/PaSoRi 3.0";
 
         public void InitializeReader()
         {
-            context = EstablishContext(Scope.SCARD_SCOPE_USER);
-
-            mReaders = ListReaders();
-
-            foreach(var reader in mReaders)
+            if (IsEstablished == false)
             {
-                reader.Connect(context);
+                context = EstablishContext(Scope.SCARD_SCOPE_USER);
+
+                mReaders = ListReaders();
+
+                foreach (var reader in mReaders)
+                {
+                    if (reader.ReaderState.szReader.Contains(mReaderName))
+                    {
+                        reader.Connect(context);
+                        mReader = reader;
+                        break;
+                    }
+                }
             }
-       
         }
 
+
+#if false
         public void ReaderControl(SNEP.ECommand eCommand, Serialization serialization)
         {
             //NdefMessage ndefRecords = new NdefMessage() { new NdefRecord(serialization)};
             NdefMessage ndefRecords = new NdefMessage() ;
 
-            Reader reader = mReaders[0];
-
             var outBuffer = new byte[256];
 
             switch (eCommand)
             {
-                case SNEP.ECommand.Start:
-                    ndefRecords = null;
-
-                    reader.Handle(SNEP.Request(SNEP.CMD_START, ndefRecords));
-                    break;
-
-                case SNEP.ECommand.Stop:
-                    ndefRecords = null;
-
-                    reader.Handle(SNEP.Request(SNEP.CMD_STOP, ndefRecords));
-                    break;
-
-                case SNEP.ECommand.PutTimeout:
-                    ndefRecords = null;
-
-                    reader.Handle(SNEP.Request(SNEP.CMD_SET_TIMEOUT, ndefRecords));
-                    break;
-
-                case SNEP.ECommand.RecieveTimeout:
-                    ndefRecords = null;
-
-                    reader.Handle(SNEP.Request(SNEP.CMD_SET_TIMEOUT2, ndefRecords));
-                    break;
-
                 case SNEP.ECommand.Put:
 
                     ndefRecords.Add(new NdefRecord(serialization));
-                     
-                    reader.Handle(SNEP.Request(SNEP.CMD_SEND, ndefRecords));
 
-                    //reader.Handle(SNEP.Request(SNEP.CMD_RECEIVE, ndefRecords), ref outBuffer);
-
+                    mReader.Handle(SNEP.Request(SNEP.CMD_SEND, ndefRecords));
 
                     break;
 
@@ -78,13 +61,9 @@ namespace PcscNfcSnep.PCSC.NFC
 
                     ndefRecords = null;
 ;
-                    var ret = reader.Handle(SNEP.Request(SNEP.CMD_RECEIVE, ndefRecords));
+                    var ret = mReader.Handle(SNEP.Request(SNEP.CMD_RECEIVE, ndefRecords));
 
-                    ndefRecords = NdefMessage.FromByteArray(ret.OutBuffer, ret.BytesReturned);
-
-                    /* remove snep command */
-
-                    /* Convert */
+                    ndefRecords = SNEP.Response(ret.OutBuffer, ret.BytesReturned);
 
                     break;
 
@@ -92,30 +71,48 @@ namespace PcscNfcSnep.PCSC.NFC
 
             }
         }
+#endif
+        public void ReaderPut(SNEP.ECommand eCommand, Serialization serialization)
+        {
+            NdefMessage ndefRecords = new NdefMessage() { new NdefRecord(serialization) };
+
+            mReader.Handle(SNEP.Request(SNEP.CMD_SEND, ndefRecords));
+
+        }
+
+        public NdefMessage ReaderRecieve()
+        {
+            NdefMessage ndefRecords = null;
+
+            var ret = mReader.Handle(SNEP.Request(SNEP.CMD_RECEIVE, ndefRecords));
+
+            ndefRecords = SNEP.Response(ret.OutBuffer, ret.BytesReturned);
+
+            return ndefRecords;
+
+        }
+
         public void ReaderControl(SNEP.ECommand eCommand, byte[] rawData)
         {
             var outBuffer = new byte[256];
-            Reader reader = mReaders[0];
             byte[] rawBuffer = null;
 
             switch (eCommand)
             {
                 case SNEP.ECommand.Start:
-                    reader.Handle(SNEP.Request(SNEP.CMD_START, rawBuffer));
+                    mReader.Handle(SNEP.Request(SNEP.CMD_START, rawBuffer));
                     break;
 
                 case SNEP.ECommand.Stop:
-
-                    reader.Handle(SNEP.Request(SNEP.CMD_STOP, rawBuffer));
+                    mReader.Handle(SNEP.Request(SNEP.CMD_STOP, rawBuffer));
                     break;
 
                 case SNEP.ECommand.PutTimeout:
-                    reader.Handle(SNEP.Request(SNEP.CMD_SET_TIMEOUT, rawBuffer));
+                    mReader.Handle(SNEP.Request(SNEP.CMD_SET_TIMEOUT, rawBuffer));
                     break;
 
                 case SNEP.ECommand.RecieveTimeout:
-
-                    reader.Handle(SNEP.Request(SNEP.CMD_SET_TIMEOUT2, rawBuffer));
+                    mReader.Handle(SNEP.Request(SNEP.CMD_SET_TIMEOUT2, rawBuffer));
                     break;
             }
         }

@@ -33,7 +33,7 @@ namespace PcscNfcSnep
         {
             readerContext.InitializeReader();
 
-             byte[] temp = null;
+            byte[] temp = null;
 
             readerContext.ReaderControl(SNEP.ECommand.Start, temp);
 
@@ -56,9 +56,9 @@ namespace PcscNfcSnep
             //NdefRecord ndef2 = new NdefRecord(new TimeSyncMessage());
             //ndefRecords = new NdefMessage() { ndef , ndef2 };
 
-            Serialization serialization = null;
+            byte[] temp = null;
 
-            readerContext.ReaderControl(SNEP.ECommand.Stop, serialization);
+            readerContext.ReaderControl(SNEP.ECommand.Stop, temp);
 
             ResultBlock.Text = "Stop";
 
@@ -66,17 +66,24 @@ namespace PcscNfcSnep
 
         private void Device_Info_Button_Click(object sender, RoutedEventArgs e)
         {
-            Serialization serialization = null;
+            DeviceInfoMessage deviceInfoMessage = new DeviceInfoMessage();
 
-            readerContext.ReaderControl(SNEP.ECommand.Put, new DeviceInfoMessage());
+            readerContext.ReaderPut(SNEP.ECommand.Put, deviceInfoMessage);
 
-            readerContext.ReaderControl(SNEP.ECommand.Receive, serialization);
+            readerContext.ReaderRecieve();
 
+            deviceInfoMessage.Deserialize(readerContext.ReaderRecieve()[0].Payload);
         }
 
         private void TimeSync_Button_Click(object sender, RoutedEventArgs e)
         {
-            readerContext.ReaderControl(SNEP.ECommand.Put, new TimeSyncMessage());
+            TimeSyncMessage timeSyncMessage = new TimeSyncMessage();
+
+            readerContext.ReaderPut(SNEP.ECommand.Put, timeSyncMessage);
+
+            readerContext.ReaderRecieve();
+
+            timeSyncMessage.Deserialize(readerContext.ReaderRecieve()[0].Payload);
         }
 
         private void Remaining_Button_Click(object sender, RoutedEventArgs e)
@@ -86,7 +93,19 @@ namespace PcscNfcSnep
 
         private void Measurement_Button_Click(object sender, RoutedEventArgs e)
         {
-            readerContext.ReaderControl(SNEP.ECommand.Put, new MeasurementMessage());
+            const uint MEASUREMENT_SIZE = 179;
+
+            List<MeasurementMessage> measurementMessages = new List<MeasurementMessage>();
+
+            readerContext.ReaderPut(SNEP.ECommand.Put, measurementMessages[0]);
+
+            readerContext.ReaderRecieve();
+
+            var conv = readerContext.ReaderRecieve()[0].Payload;
+
+            var size = conv.Length / MeasurementMessage.MEASUREMENT_MESSAGE_SIZE; 
+
+            measurementMessage.Deserialize(readerContext.ReaderRecieve()[0].Payload);
         }
     }
 }

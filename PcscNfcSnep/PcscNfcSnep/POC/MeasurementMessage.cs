@@ -9,6 +9,7 @@ namespace PcscNfcSnep.POC
         const byte COMMAND_REMAINING = 0x55;
         const byte COMMAND_MEASUREMENT_MESSAGE = 0xAA;
         const byte RESERVED = 0x00;
+        public const uint MEASUREMENT_MESSAGE_SIZE = 179;
 
         byte Result;
         byte Object;

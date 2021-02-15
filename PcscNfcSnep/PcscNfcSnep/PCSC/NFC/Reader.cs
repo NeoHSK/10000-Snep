@@ -20,14 +20,6 @@ namespace PcscNfcSnep.PCSC.NFC
             return ret;
         }
 
-        internal dynamic Handle(byte[] ndefRecord, ref byte[]outBuffer)
-        {
-            var ret = Control(mReader, ndefRecord);
-
-            return ret;
-            //outBuffer = ret;
-        }
-
         internal Reader(string name)
         {
             ReaderState = new SCARD_READERSTATE()
