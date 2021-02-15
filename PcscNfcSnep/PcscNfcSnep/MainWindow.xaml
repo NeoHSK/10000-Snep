@@ -8,9 +8,13 @@
         Title="MainWindow" Height="450" Width="800">
     <Grid>
         <StackPanel>
-            <Button Content="Start" Click="Button_Click" Height="40" Width="80" HorizontalAlignment="Left"  Margin="5 20 0 5"/>
-            <Button Content="Stop" Click="Button_Click_1" Height="40" Width="80" HorizontalAlignment="Left" Margin="5 20 0 5"/>
-            <Button Content="Info" Click="Button_Click_2" Height="40" Width="80" HorizontalAlignment="Left" Margin="5 20 0 5"/>
+            <Button Content="Start" Click="Start_Button_Click" Height="40" Width="150" HorizontalAlignment="Left"  Margin="30 20 0 5"/>
+            <Button Content="Stop" Click="Stop_Button_Click" Height="40" Width="150" HorizontalAlignment="Left" Margin="30 20 0 5"/>
+            <Button Content="Device Information" Click="Device_Info_Button_Click" Height="40" Width="150" HorizontalAlignment="Left" Margin="30 20 0 5"/>
+            <Button Content="Time Synchronization" Click="TimeSync_Button_Click" Height="40" Width="150" HorizontalAlignment="Left" Margin="30 20 0 5"/>
+            <Button Content="Remaing Count" Click="Remaining_Button_Click" Height="40" Width="150" HorizontalAlignment="Left" Margin="30 20 0 5"/>
+            <Button Content="Measurement" Click="Measurement_Button_Click" Height="40" Width="150" HorizontalAlignment="Left" Margin="30 20 0 5"/>
         </StackPanel>
+        <TextBlock x:Name="ResultBlock"  Height="400" RenderTransformOrigin="0.522,-0.537" Margin="224,17,50,17"/>
     </Grid>
 </Window>

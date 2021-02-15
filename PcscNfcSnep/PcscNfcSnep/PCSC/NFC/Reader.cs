@@ -14,39 +14,19 @@ namespace PcscNfcSnep.PCSC.NFC
         internal SCARD_READERSTATE ReaderState { get; set; }
 
 
-        internal void Handle(SNEP.ECommand eCommand, NdefMessage ndefMessage)
+        internal dynamic Handle(byte[] ndefRecord)
         {
-            switch (eCommand)
-            {
-                case SNEP.ECommand.Start:
-                    Control(mReader, SNEP.Request(SNEP.CMD_START, ndefMessage));
-                    break;
-                case SNEP.ECommand.Stop:
-                    Control(mReader, SNEP.Request(SNEP.CMD_STOP, ndefMessage));
-                    break;
-                case SNEP.ECommand.PutTimeout:
-                    Control(mReader, SNEP.Request(SNEP.CMD_SET_TIMEOUT, ndefMessage));
-                    break;
-                case SNEP.ECommand.RecieveTimeout:
-                    Control(mReader, SNEP.Request(SNEP.CMD_SET_TIMEOUT2, ndefMessage));
-                    break;
-
-                case SNEP.ECommand.Put:
-
-                    Control(mReader, SNEP.Request(SNEP.CMD_SEND, ndefMessage));
-                    
-                    var res = Control(mReader, SNEP.Request(SNEP.CMD_RECEIVE, null));
-
-                    NdefMessage ndefRecords1 = NdefMessage.FromByteArray(res);
-
-                    ndefRecords1[0].Payload.ToString();
-           
-                 break;
-
-                default: break;
-            }
+            var ret = Control(mReader, ndefRecord);
+            return ret;
         }
 
+        internal dynamic Handle(byte[] ndefRecord, ref byte[]outBuffer)
+        {
+            var ret = Control(mReader, ndefRecord);
+
+            return ret;
+            //outBuffer = ret;
+        }
 
         internal Reader(string name)
         {

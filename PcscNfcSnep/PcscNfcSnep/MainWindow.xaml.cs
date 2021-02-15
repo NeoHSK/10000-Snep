@@ -24,44 +24,69 @@ namespace PcscNfcSnep
     public partial class MainWindow : Window
     {
         ReaderContext readerContext = new ReaderContext();
-
-
         public MainWindow()
         {
             InitializeComponent();
-
-            NdefRecord ndef = new NdefRecord(new DeviceInfoMessage());
-
-            NdefMessage ndefRecords = new NdefMessage() { ndef};
-
-            var byte1 = ndefRecords.ToByteArray();
-
-            NdefMessage ndefRecords1 = NdefMessage.FromByteArray(byte1);
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void Start_Button_Click(object sender, RoutedEventArgs e)
         {
             readerContext.InitializeReader();
+
+             byte[] temp = null;
+
+            readerContext.ReaderControl(SNEP.ECommand.Start, temp);
+
+            readerContext.ReaderControl(SNEP.ECommand.PutTimeout, temp);
+
+            readerContext.ReaderControl(SNEP.ECommand.RecieveTimeout, temp);
+
+            ResultBlock.Text = "Start";
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        private void Stop_Button_Click(object sender, RoutedEventArgs e)
         {
             //One by one           
-            NdefMessage ndefRecords = new NdefMessage() { new NdefRecord(new DeviceInfoMessage()) };
+            //NdefMessage ndefRecords = new NdefMessage() { new NdefRecord(new DeviceInfoMessage()) };
 
-            ndefRecords.Clear();
+            //ndefRecords.Clear();
 
             //Continuous
-            NdefRecord ndef = new NdefRecord(new DeviceInfoMessage());
-            NdefRecord ndef2 = new NdefRecord(new TimeSyncMessage());
-            ndefRecords = new NdefMessage() { ndef , ndef2 };
+            //NdefRecord ndef = new NdefRecord(new DeviceInfoMessage());
+            //NdefRecord ndef2 = new NdefRecord(new TimeSyncMessage());
+            //ndefRecords = new NdefMessage() { ndef , ndef2 };
 
-            readerContext.ReaderControl();
+            Serialization serialization = null;
+
+            readerContext.ReaderControl(SNEP.ECommand.Stop, serialization);
+
+            ResultBlock.Text = "Stop";
+
         }
 
-        private void Button_Click_2(object sender, RoutedEventArgs e)
+        private void Device_Info_Button_Click(object sender, RoutedEventArgs e)
         {
+            Serialization serialization = null;
 
+            readerContext.ReaderControl(SNEP.ECommand.Put, new DeviceInfoMessage());
+
+            readerContext.ReaderControl(SNEP.ECommand.Receive, serialization);
+
+        }
+
+        private void TimeSync_Button_Click(object sender, RoutedEventArgs e)
+        {
+            readerContext.ReaderControl(SNEP.ECommand.Put, new TimeSyncMessage());
+        }
+
+        private void Remaining_Button_Click(object sender, RoutedEventArgs e)
+        {
+            readerContext.ReaderControl(SNEP.ECommand.Put, new MeasurementMessage().RequestRemaingCount());
+        }
+
+        private void Measurement_Button_Click(object sender, RoutedEventArgs e)
+        {
+            readerContext.ReaderControl(SNEP.ECommand.Put, new MeasurementMessage());
         }
     }
 }

@@ -31,6 +31,24 @@ namespace PcscNfcSnep.NDEF
 
         public ETypeNameFormat TypeNameFormat { get; set; }
 
+        private byte[] mType;
+
+        public byte[] Type
+        {
+            get { return mType; }
+            set 
+            { 
+                if(value == null)
+                {
+                    mType = null;
+                    return;
+                }
+                mType = new byte[value.Length];
+                Array.Copy(value, mType, value.Length);
+            }
+        }
+
+
         private byte[] mPayload;
 
         public byte[] Payload

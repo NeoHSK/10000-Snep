@@ -1,4 +1,5 @@
 ﻿using PcscNfcSnep.NDEF;
+using PcscNfcSnep.POC;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,9 +28,96 @@ namespace PcscNfcSnep.PCSC.NFC
        
         }
 
-        public void ReaderControl()
+        public void ReaderControl(SNEP.ECommand eCommand, Serialization serialization)
         {
-            mReaders[0].Handle(SNEP.ECommand.Start, new NdefMessage());
+            //NdefMessage ndefRecords = new NdefMessage() { new NdefRecord(serialization)};
+            NdefMessage ndefRecords = new NdefMessage() ;
+
+            Reader reader = mReaders[0];
+
+            var outBuffer = new byte[256];
+
+            switch (eCommand)
+            {
+                case SNEP.ECommand.Start:
+                    ndefRecords = null;
+
+                    reader.Handle(SNEP.Request(SNEP.CMD_START, ndefRecords));
+                    break;
+
+                case SNEP.ECommand.Stop:
+                    ndefRecords = null;
+
+                    reader.Handle(SNEP.Request(SNEP.CMD_STOP, ndefRecords));
+                    break;
+
+                case SNEP.ECommand.PutTimeout:
+                    ndefRecords = null;
+
+                    reader.Handle(SNEP.Request(SNEP.CMD_SET_TIMEOUT, ndefRecords));
+                    break;
+
+                case SNEP.ECommand.RecieveTimeout:
+                    ndefRecords = null;
+
+                    reader.Handle(SNEP.Request(SNEP.CMD_SET_TIMEOUT2, ndefRecords));
+                    break;
+
+                case SNEP.ECommand.Put:
+
+                    ndefRecords.Add(new NdefRecord(serialization));
+                     
+                    reader.Handle(SNEP.Request(SNEP.CMD_SEND, ndefRecords));
+
+                    //reader.Handle(SNEP.Request(SNEP.CMD_RECEIVE, ndefRecords), ref outBuffer);
+
+
+                    break;
+
+                case SNEP.ECommand.Receive:
+
+                    ndefRecords = null;
+;
+                    var ret = reader.Handle(SNEP.Request(SNEP.CMD_RECEIVE, ndefRecords));
+
+                    ndefRecords = NdefMessage.FromByteArray(ret.OutBuffer, ret.BytesReturned);
+
+                    /* remove snep command */
+
+                    /* Convert */
+
+                    break;
+
+                default: break;
+
+            }
+        }
+        public void ReaderControl(SNEP.ECommand eCommand, byte[] rawData)
+        {
+            var outBuffer = new byte[256];
+            Reader reader = mReaders[0];
+            byte[] rawBuffer = null;
+
+            switch (eCommand)
+            {
+                case SNEP.ECommand.Start:
+                    reader.Handle(SNEP.Request(SNEP.CMD_START, rawBuffer));
+                    break;
+
+                case SNEP.ECommand.Stop:
+
+                    reader.Handle(SNEP.Request(SNEP.CMD_STOP, rawBuffer));
+                    break;
+
+                case SNEP.ECommand.PutTimeout:
+                    reader.Handle(SNEP.Request(SNEP.CMD_SET_TIMEOUT, rawBuffer));
+                    break;
+
+                case SNEP.ECommand.RecieveTimeout:
+
+                    reader.Handle(SNEP.Request(SNEP.CMD_SET_TIMEOUT2, rawBuffer));
+                    break;
+            }
         }
 
 
@@ -44,7 +132,7 @@ namespace PcscNfcSnep.PCSC.NFC
         }
 
 
-        #region IDisposable 
+#region IDisposable 
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -82,9 +170,9 @@ namespace PcscNfcSnep.PCSC.NFC
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
-        #endregion IDisposable
+#endregion IDisposable
 
-        #region WinSCard
+#region WinSCard
         IntPtr EstablishContext(Scope scope)
         {
             var context = IntPtr.Zero;
@@ -145,6 +233,6 @@ namespace PcscNfcSnep.PCSC.NFC
                 NativeMethods.SCardCancel(context);
             }
         }
-        #endregion
+#endregion
     }
 }

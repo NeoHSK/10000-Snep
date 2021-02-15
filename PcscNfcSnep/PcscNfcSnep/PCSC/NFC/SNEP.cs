@@ -30,13 +30,25 @@ namespace PcscNfcSnep.PCSC.NFC
     
         public static byte[] Request(byte[] command, NdefMessage ndefMessage)
         {
-            if (ndefMessage != null)
+            if(ndefMessage == null)
+                return command;
+
+            var conv = new byte[command.Length + ndefMessage.ToByteArray().Length];
+            Array.Copy(command, conv, command.Length);
+            Array.Copy(ndefMessage.ToByteArray(), 0,
+                        conv, command.Length,
+                        ndefMessage.ToByteArray().Length);
+            return conv;
+        }
+        public static byte[] Request(byte[] command, byte[] rawData)
+        {
+            if (rawData != null)
             {
-                var conv = new byte[command.Length + ndefMessage.ToByteArray().Length];
+                var conv = new byte[command.Length + rawData.Length];
                 Array.Copy(command, conv, command.Length);
-                Array.Copy(ndefMessage.ToByteArray(), 0,
+                Array.Copy(rawData, 0,
                             conv, command.Length,
-                            ndefMessage.ToByteArray().Length);
+                            rawData.Length);
                 return conv;
             }
             return command;

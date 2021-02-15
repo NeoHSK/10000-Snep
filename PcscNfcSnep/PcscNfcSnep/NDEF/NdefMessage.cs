@@ -9,18 +9,27 @@ namespace PcscNfcSnep.NDEF
     {
         static bool messageBegin;
 
-        public static NdefMessage FromByteArray(byte[] rawData)
+        public static NdefMessage FromByteArray(byte[] rawData, uint size)
         {
             uint payloadLength;
 
-            uint index = 0;
+            /// index 0 is return code.
+            uint index = 1;
+
             NdefMessage ndefMessage = new NdefMessage();
 
-            while (index < rawData.Length)
+            /* Empty message */
+            if (size < 5)
+                return ndefMessage;
+
+            while (index < size)
             {
                 NdefRecord ndefRecord = new NdefRecord();
 
                 ndefRecord.MessageInfoFlag = (NdefRecord.EMessageInfoFlags)rawData[index];
+
+                /* Type not supported*/
+                 var typeLengnth = rawData[++index];
 
                 if ((ndefRecord.MessageInfoFlag & NdefRecord.EMessageInfoFlags.MB) == NdefRecord.EMessageInfoFlags.MB)
                 {
@@ -134,6 +143,9 @@ namespace PcscNfcSnep.NDEF
                 }
 
                 memoryStream.WriteByte(recordHeader);
+
+                /* Type not supported */
+                memoryStream.WriteByte(0);
 
                 if (record.Payload == null)
                 {
