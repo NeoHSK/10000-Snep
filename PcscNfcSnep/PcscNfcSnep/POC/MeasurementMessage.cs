@@ -10,7 +10,6 @@ namespace PcscNfcSnep.POC
         const byte COMMAND_MEASUREMENT_MESSAGE = 0xAA;
         const byte RESERVED = 0x00;
         public const uint MEASUREMENT_MESSAGE_SIZE = 179;
-
         byte Result;
         byte Object;
         byte Unit;
@@ -45,19 +44,41 @@ namespace PcscNfcSnep.POC
 
         public override byte[] RequestMessage()
         {
-            return new byte[2] { COMMAND_MEASUREMENT_MESSAGE, RESERVED };
+            return null;
         }
 
-        public byte[] ResponseRemaingCount(byte[] rawData)
+        public uint ResponseRemaingCount(byte[] rawData)
         {
-            Array.Reverse(rawData);
-
-            return rawData;
+            // TODO Command verified
+            var convSize = rawData.Length - 2;
+            var conv = new byte[convSize];
+            Array.Copy(rawData, 2, conv, 0, convSize);
+            Array.Reverse(conv);
+            return BitConverter.ToUInt32(conv, 0);
         }
 
-        public byte[] RequestRemaingCount()
+        public byte[] RequestRemaingCount(uint lastSequenceNumber)
         {
-            return new byte[2] { COMMAND_REMAINING, RESERVED };
+            var conv = new byte[6];
+            conv[0] = (byte)COMMAND_REMAINING;
+            conv[1] = (byte)RESERVED;
+            var byteConv = BitConverter.GetBytes(lastSequenceNumber);
+            Array.Reverse(byteConv);
+            Array.Copy(byteConv, 0, conv, 2, byteConv.Length);
+            return conv;
         }
+
+        public byte[] RequestMeasurementMessage(uint lastSequenceNumber)
+        {
+            var conv = new byte[6];
+            conv[0] = (byte)COMMAND_MEASUREMENT_MESSAGE;
+            conv[1] = (byte)RESERVED;
+            var byteConv = BitConverter.GetBytes(lastSequenceNumber);
+            Array.Reverse(byteConv);
+            Array.Copy(byteConv, 0, conv, 2, byteConv.Length);
+            return conv;
+        }
+
+
     }
 }

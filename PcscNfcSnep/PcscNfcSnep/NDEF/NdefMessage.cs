@@ -13,8 +13,7 @@ namespace PcscNfcSnep.NDEF
         {
             uint payloadLength;
 
-            /// index 0 is return code.
-            uint index = 1;
+            uint index = 0;
 
             NdefMessage ndefMessage = new NdefMessage();
 

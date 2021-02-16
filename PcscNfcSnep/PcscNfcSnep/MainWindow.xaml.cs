@@ -63,49 +63,72 @@ namespace PcscNfcSnep
             ResultBlock.Text = "Stop";
 
         }
-
+        
         private void Device_Info_Button_Click(object sender, RoutedEventArgs e)
         {
+            //TODO NDEF Message 를 만들어서 rawData로 변경하여 Reader에 put하도록 변경
+            
             DeviceInfoMessage deviceInfoMessage = new DeviceInfoMessage();
 
             readerContext.ReaderPut(SNEP.ECommand.Put, deviceInfoMessage);
 
-            readerContext.ReaderRecieve();
-
-            deviceInfoMessage.Deserialize(readerContext.ReaderRecieve()[0].Payload);
+            //TODO 예외처리 payload가 0 일때
+            deviceInfoMessage.ResponseMessage(readerContext.ReaderRecieve()[0].Payload);
+            ResultBlock.Text = deviceInfoMessage.ToString();
         }
 
         private void TimeSync_Button_Click(object sender, RoutedEventArgs e)
         {
             TimeSyncMessage timeSyncMessage = new TimeSyncMessage();
-
+            TimeSyncMessage recievetimeSyncMessage = new TimeSyncMessage();
             readerContext.ReaderPut(SNEP.ECommand.Put, timeSyncMessage);
 
-            readerContext.ReaderRecieve();
+            recievetimeSyncMessage.Day = 0;
+            recievetimeSyncMessage.Dst = 0;
+            recievetimeSyncMessage.Month = 0;
+            recievetimeSyncMessage.Year = 0;
+            recievetimeSyncMessage.Second = 0;
+            recievetimeSyncMessage.Minute = 0;
 
-            timeSyncMessage.Deserialize(readerContext.ReaderRecieve()[0].Payload);
+            recievetimeSyncMessage.ResponseMessage(readerContext.ReaderRecieve()[0].Payload);
+
+            ResultBlock.Text = recievetimeSyncMessage.ToString();
         }
 
         private void Remaining_Button_Click(object sender, RoutedEventArgs e)
         {
-            readerContext.ReaderControl(SNEP.ECommand.Put, new MeasurementMessage().RequestRemaingCount());
+            uint lastSequenceNumber = 1;
+            uint remainingDataCount;
+            MeasurementMessage measurementMessage = new MeasurementMessage();
+
+            readerContext.ReaderPut(SNEP.ECommand.Put, measurementMessage.RequestRemaingCount(lastSequenceNumber));
+
+            remainingDataCount = measurementMessage.ResponseRemaingCount(readerContext.ReaderRecieve()[0].Payload);
+
+            ResultBlock.Text = remainingDataCount.ToString();
         }
 
         private void Measurement_Button_Click(object sender, RoutedEventArgs e)
         {
             const uint MEASUREMENT_SIZE = 179;
 
+            uint lastSequenceNumber = 1;
+
             List<MeasurementMessage> measurementMessages = new List<MeasurementMessage>();
 
-            readerContext.ReaderPut(SNEP.ECommand.Put, measurementMessages[0]);
+            MeasurementMessage measurementMessage = new MeasurementMessage();
 
-            readerContext.ReaderRecieve();
+            readerContext.ReaderPut(SNEP.ECommand.Put, measurementMessage.RequestMeasurementMessage(lastSequenceNumber));
 
+/*
             var conv = readerContext.ReaderRecieve()[0].Payload;
 
-            var size = conv.Length / MeasurementMessage.MEASUREMENT_MESSAGE_SIZE; 
+            var size = conv.Length / MeasurementMessage.MEASUREMENT_MESSAGE_SIZE;
+*/
+            measurementMessage.ResponseMessage(readerContext.ReaderRecieve()[0].Payload);
 
-            measurementMessage.Deserialize(readerContext.ReaderRecieve()[0].Payload);
+            measurementMessages.Add(measurementMessage);
+
         }
     }
 }

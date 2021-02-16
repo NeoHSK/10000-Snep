@@ -77,6 +77,12 @@ namespace PcscNfcSnep.NDEF
             Payload = serialization.RequestMessage();
         }
 
+        public NdefRecord(byte[] payload)
+        {
+            TypeNameFormat = ETypeNameFormat.Unknown;
+            Payload = payload;
+        }
+
         public NdefRecord(NdefRecord ndefRecord)
         {
             TypeNameFormat = ndefRecord.TypeNameFormat;

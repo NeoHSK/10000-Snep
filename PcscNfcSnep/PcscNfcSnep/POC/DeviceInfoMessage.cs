@@ -16,15 +16,20 @@ namespace PcscNfcSnep.POC
 
         public override void ResponseMessage(byte[] rawData)
         {
-            for (int i = 0; i < 3; i++)
-            {
-                Array.Reverse(rawData, i* RESPONSE_SIZE, RESPONSE_SIZE);
-            }
-            Deserialize(rawData);
+            // TODO Command verified
+            var convSize = rawData.Length - 2;
+            var conv = new byte[convSize];
+            Array.Copy(rawData, 2, conv, 0, convSize);
+            Deserialize(conv);
         }
         public override byte[] RequestMessage()
         {
             return new byte[2] { COMMAND, RESEVED };
+        }
+
+        public override string ToString()
+        {
+            return new string(ModelName) + "\n" + new string(SerialNumber) + "\n" + new string(ProtocolVersionNumber);
         }
     }
 }

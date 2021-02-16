@@ -79,6 +79,12 @@ namespace PcscNfcSnep.PCSC.NFC
             mReader.Handle(SNEP.Request(SNEP.CMD_SEND, ndefRecords));
 
         }
+        public void ReaderPut(SNEP.ECommand eCommand, byte[] rawData)
+        {
+            NdefMessage ndefRecords = new NdefMessage() { new NdefRecord(rawData) };
+
+            mReader.Handle(SNEP.Request(SNEP.CMD_SEND, ndefRecords));
+        }
 
         public NdefMessage ReaderRecieve()
         {

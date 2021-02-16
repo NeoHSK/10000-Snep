@@ -27,8 +27,6 @@ namespace PcscNfcSnep.PCSC.NFC
         public static readonly byte[] CMD_SET_TIMEOUT = new byte[] { 0xC6, 0x05, 0x00, 0x01, 0xFF, 0xFF, 0x00, 0x00 };
         public static readonly byte[] CMD_SET_TIMEOUT2 = new byte[] { 0xC6, 0x05, 0x00, 0x02, 0xFF, 0xFF, 0x00, 0x00 };
 
-        private static byte[] mCommand = new byte[2];
-    
         public static byte[] Request(byte[] command, NdefMessage ndefMessage)
         {
             if (ndefMessage == null)
@@ -43,9 +41,6 @@ namespace PcscNfcSnep.PCSC.NFC
         }
         public static byte[] Request(byte[] command, byte[] rawData)
         {
-            mCommand[0] = command[0];
-            mCommand[1] = command[1];
-
             if (rawData == null)
                 return command;
 
@@ -57,15 +52,19 @@ namespace PcscNfcSnep.PCSC.NFC
             return conv;
         }
         
+        /// <summary>
+        /// Response [return value + NDEF Message] check command first
+        /// </summary>
+        /// <param name="rawData"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
         public static NdefMessage Response(byte[] rawData, uint size)
         {
-            if (mCommand[0] != rawData[1] || mCommand[1] != rawData[2])
-                return new NdefMessage();
+            var sizeReturn = size - 1;
+            var conv = new byte[sizeReturn];
+            Array.Copy(rawData, 1, conv, 0, sizeReturn);
 
-            var conv = new byte[size - 3];
-            Array.Copy(rawData,conv,rawData.Length-3);
-
-            return NdefMessage.FromByteArray(conv, size);
+            return NdefMessage.FromByteArray(conv, sizeReturn);
         }
 
     }
