@@ -114,20 +114,33 @@ namespace PcscNfcSnep
 
             uint lastSequenceNumber = 1;
 
-            List<MeasurementMessage> measurementMessages = new List<MeasurementMessage>();
+            string textBlcok;
 
-            MeasurementMessage measurementMessage = new MeasurementMessage();
+            textBlcok = LastSequenceNumber.Text;
 
-            readerContext.ReaderPut(SNEP.ECommand.Put, measurementMessage.RequestMeasurementMessage(lastSequenceNumber));
+            uint intSeqNum;
 
-/*
-            var conv = readerContext.ReaderRecieve()[0].Payload;
+            if(uint.TryParse(textBlcok,out intSeqNum))
+            {
 
-            var size = conv.Length / MeasurementMessage.MEASUREMENT_MESSAGE_SIZE;
-*/
-            measurementMessage.ResponseMessage(readerContext.ReaderRecieve()[0].Payload);
+                List<MeasurementMessage> measurementMessages = new List<MeasurementMessage>();
 
-            measurementMessages.Add(measurementMessage);
+                MeasurementMessage measurementMessage = new MeasurementMessage();
+
+                readerContext.ReaderPut(SNEP.ECommand.Put, measurementMessage.RequestMeasurementMessage(intSeqNum));
+
+    /*
+                var conv = readerContext.ReaderRecieve()[0].Payload;
+
+                var size = conv.Length / MeasurementMessage.MEASUREMENT_MESSAGE_SIZE;
+    */
+    
+                measurementMessage.ResponseMessage(readerContext.ReaderRecieve()[0].Payload);
+
+                measurementMessages.Add(measurementMessage);
+
+                ResultBlock.Text = measurementMessage.ToString();
+            }
 
         }
     }

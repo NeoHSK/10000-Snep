@@ -68,7 +68,7 @@ namespace PcscNfcSnep.PCSC.NFC
         dynamic Control(IntPtr reader, byte[] inBuffer)
         {
             /*TODO Control out size*/
-            var outBuffer = new byte[256];
+            var outBuffer = new byte[10240];
 
             var ret = (ReturnCode)NativeMethods.SCardControl(
                 reader,

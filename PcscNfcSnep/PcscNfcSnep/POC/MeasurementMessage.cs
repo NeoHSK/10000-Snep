@@ -9,7 +9,7 @@ namespace PcscNfcSnep.POC
         const byte COMMAND_REMAINING = 0x55;
         const byte COMMAND_MEASUREMENT_MESSAGE = 0xAA;
         const byte RESERVED = 0x00;
-        public const uint MEASUREMENT_MESSAGE_SIZE = 179;
+        public const uint MEASUREMENT_MESSAGE_SIZE = 139;
         byte Result;
         byte Object;
         byte Unit;
@@ -31,15 +31,23 @@ namespace PcscNfcSnep.POC
 
         public override void ResponseMessage(byte[] rawData)
         {
+            var convSize = rawData.Length - 2;
+            var conv = new byte[convSize];
+            var oneMeasurement = new byte[MEASUREMENT_MESSAGE_SIZE];
+
+            Array.Copy(rawData, 2, conv, 0, convSize);
+
+            Array.Copy(conv, 0, oneMeasurement, 0, MEASUREMENT_MESSAGE_SIZE);
+
             /* Big endian to little endian */
             for (int i = 0; i < 4; i++)
             {
-                Array.Reverse(rawData, 4 + 30 * i, 30);
+                Array.Reverse(oneMeasurement, 4 + 30 * i, 30);
             }
 
-            Array.Reverse(rawData);
+            Array.Reverse(oneMeasurement);
 
-            Deserialize(rawData);
+            Deserialize(oneMeasurement);
         }
 
         public override byte[] RequestMessage()
@@ -79,6 +87,27 @@ namespace PcscNfcSnep.POC
             return conv;
         }
 
+        public override string ToString()
+        {
+            return $"Result - " + Result.ToString() + "\n" +
+            "Object- " + Object.ToString() + "\n" +
+            "Unit- " + Unit.ToString() + "\n" +
+            "Type- " + Type.ToString() + "\n" +
+            "Comment- " + Comment.ToString() + "\n" +
+            "MealInformation- " + MealInformation.ToString() + "\n" +
+            "Second- " + Second.ToString() + "\n" +
+            "Minute- " + Minute.ToString() + "\n" +
+            "Hour- " + Hour.ToString() + "\n" +
+            "Day- " + Day.ToString() + "\n" +
+            "Month- " + Month.ToString() + "\n" +
+            "Year- " + Year.ToString() + "\n" +
+            "Value- " + Value.ToString() + "\n" +
+            "ControlLotNumber- " + new string(ControlLotNumber) + "\n" +
+            "StripLotNumber- " + new string(StripLotNumber) + "\n" +
+            "PatientId- " + new string(PatientId) + "\n" +
+            "OperatorId- " + new string(OperatorId) + "\n" +
+            "SequenceNumber - " + SequenceNumber.ToString();
+        }
 
     }
 }
