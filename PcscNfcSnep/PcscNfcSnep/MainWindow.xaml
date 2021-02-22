@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PcscNfcSnep"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="500" Width="800">
     <Grid>
         <StackPanel>
             <Button Content="Start" Click="Start_Button_Click" Height="40" Width="150" HorizontalAlignment="Left"  Margin="30 20 0 5"/>
@@ -16,6 +16,6 @@
             <Button Content="Measurement" Click="Measurement_Button_Click" Height="40" Width="150" HorizontalAlignment="Left" Margin="30 20 0 5"/>
         </StackPanel>
         <TextBlock x:Name="ResultBlock"  Height="400" RenderTransformOrigin="0.522,-0.537" Margin="333,17,50,17"/>
-        <TextBox x:Name="LastSequenceNumber" Height="40" Width="100" Margin="195,347,505,47" RenderTransformOrigin="0.301,0.435"/>
+        <TextBox x:Name="LastSequenceNumber" Height="40" Width="100" Margin="194,347,506,97" RenderTransformOrigin="0.301,0.435"/>
     </Grid>
 </Window>

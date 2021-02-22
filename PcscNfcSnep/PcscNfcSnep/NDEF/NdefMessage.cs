@@ -30,6 +30,7 @@ namespace PcscNfcSnep.NDEF
                 /* Type not supported*/
                  var typeLengnth = rawData[++index];
 
+#if false // Validation not supported
                 if ((ndefRecord.MessageInfoFlag & NdefRecord.EMessageInfoFlags.MB) == NdefRecord.EMessageInfoFlags.MB)
                 {
                     if (messageBegin != true)
@@ -58,7 +59,7 @@ namespace PcscNfcSnep.NDEF
                         return ndefMessage;
                     }
                 }
-
+#endif
 
                 /* not supported*/
                 if (

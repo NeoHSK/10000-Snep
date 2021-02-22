@@ -24,6 +24,11 @@ namespace PcscNfcSnep
     public partial class MainWindow : Window
     {
         ReaderContext readerContext = new ReaderContext();
+
+        List<MeasurementMessage> measurementMessages = new List<MeasurementMessage>();
+
+        MeasurementMessage measurementMessage = new MeasurementMessage();
+
         public MainWindow()
         {
             InitializeComponent();
@@ -120,26 +125,23 @@ namespace PcscNfcSnep
 
             uint intSeqNum;
 
+            NdefMessage ndefRecords = new NdefMessage();
+
             if(uint.TryParse(textBlcok,out intSeqNum))
             {
-
-                List<MeasurementMessage> measurementMessages = new List<MeasurementMessage>();
-
-                MeasurementMessage measurementMessage = new MeasurementMessage();
-
                 readerContext.ReaderPut(SNEP.ECommand.Put, measurementMessage.RequestMeasurementMessage(intSeqNum));
 
-    /*
-                var conv = readerContext.ReaderRecieve()[0].Payload;
+                while (true)
+                {
+                    ndefRecords = readerContext.ReaderRecieve();
 
-                var size = conv.Length / MeasurementMessage.MEASUREMENT_MESSAGE_SIZE;
-    */
-    
-                measurementMessage.ResponseMessage(readerContext.ReaderRecieve()[0].Payload);
+                    measurementMessage.ResponseMessage(ndefRecords[0].Payload);
 
-                measurementMessages.Add(measurementMessage);
+                    if((ndefRecords[0].MessageInfoFlag & NdefRecord.EMessageInfoFlags.ME) == NdefRecord.EMessageInfoFlags.ME)
+                            break;
+                }
 
-                ResultBlock.Text = measurementMessage.ToString();
+                ResultBlock.Text = "complete";
             }
 
         }

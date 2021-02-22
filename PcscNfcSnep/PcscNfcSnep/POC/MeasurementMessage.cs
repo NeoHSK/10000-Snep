@@ -29,25 +29,36 @@ namespace PcscNfcSnep.POC
         char[] OperatorId = new char[30];
         UInt32 SequenceNumber;
 
+        List<MeasurementMessage> measurementMessages = new List<MeasurementMessage>();
+
         public override void ResponseMessage(byte[] rawData)
         {
+            // TODO Command verified
             var convSize = rawData.Length - 2;
             var conv = new byte[convSize];
-            var oneMeasurement = new byte[MEASUREMENT_MESSAGE_SIZE];
 
             Array.Copy(rawData, 2, conv, 0, convSize);
 
-            Array.Copy(conv, 0, oneMeasurement, 0, MEASUREMENT_MESSAGE_SIZE);
-
-            /* Big endian to little endian */
-            for (int i = 0; i < 4; i++)
+            for (uint j = 0; j < (conv.Length / MEASUREMENT_MESSAGE_SIZE); j++)
             {
-                Array.Reverse(oneMeasurement, 4 + 30 * i, 30);
+                MeasurementMessage measurementMessage = new MeasurementMessage();
+
+                var oneMeasurement = new byte[MEASUREMENT_MESSAGE_SIZE];
+
+                Array.Copy(conv, j*MEASUREMENT_MESSAGE_SIZE, oneMeasurement, 0, MEASUREMENT_MESSAGE_SIZE);
+
+                /* Big endian to little endian */
+                for (int i = 0; i < 4; i++)
+                {
+                    Array.Reverse(oneMeasurement, 4 + 30 * i, 30);
+                }
+
+                Array.Reverse(oneMeasurement);
+
+                measurementMessage.Deserialize(oneMeasurement);
+
+                measurementMessages.Add(measurementMessage);
             }
-
-            Array.Reverse(oneMeasurement);
-
-            Deserialize(oneMeasurement);
         }
 
         public override byte[] RequestMessage()
