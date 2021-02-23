@@ -31,6 +31,11 @@ namespace PcscNfcSnep.POC
 
         List<MeasurementMessage> measurementMessages = new List<MeasurementMessage>();
 
+        public List<MeasurementMessage> GetMeasurementMessages()
+        {
+            return measurementMessages;
+        }
+
         public override void ResponseMessage(byte[] rawData)
         {
             // TODO Command verified

@@ -124,6 +124,7 @@ namespace PcscNfcSnep
             textBlcok = LastSequenceNumber.Text;
 
             uint intSeqNum;
+            uint receiveCnt = 0;
 
             NdefMessage ndefRecords = new NdefMessage();
 
@@ -133,6 +134,7 @@ namespace PcscNfcSnep
 
                 while (true)
                 {
+                    receiveCnt++;
                     ndefRecords = readerContext.ReaderRecieve();
 
                     measurementMessage.ResponseMessage(ndefRecords[0].Payload);
@@ -140,8 +142,10 @@ namespace PcscNfcSnep
                     if((ndefRecords[0].MessageInfoFlag & NdefRecord.EMessageInfoFlags.ME) == NdefRecord.EMessageInfoFlags.ME)
                             break;
                 }
-
-                ResultBlock.Text = "complete";
+                
+                ResultBlock.Text = $"Try - {receiveCnt} \n" +
+                    $" Recieved - {measurementMessage.GetMeasurementMessages().Count} \n" +
+                    $" Complete";
             }
 
         }
