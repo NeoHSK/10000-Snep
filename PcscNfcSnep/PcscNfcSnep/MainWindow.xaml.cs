@@ -1,8 +1,10 @@
-﻿using PcscNfcSnep.NDEF;
+﻿using Newtonsoft.Json;
+using PcscNfcSnep.NDEF;
 using PcscNfcSnep.PCSC.NFC;
 using PcscNfcSnep.POC;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -142,7 +144,11 @@ namespace PcscNfcSnep
                     if((ndefRecords[0].MessageInfoFlag & NdefRecord.EMessageInfoFlags.ME) == NdefRecord.EMessageInfoFlags.ME)
                             break;
                 }
-                
+
+                string output = JsonConvert.SerializeObject(measurementMessage.GetMeasurementMessages());
+
+                File.WriteAllText("Results.json",output); 
+
                 ResultBlock.Text = $"Try - {receiveCnt} \n" +
                     $" Recieved - {measurementMessage.GetMeasurementMessages().Count} \n" +
                     $" Complete";
