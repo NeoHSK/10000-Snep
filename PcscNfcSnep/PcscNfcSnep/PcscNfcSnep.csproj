@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\StorageManager\StorageManager.csproj" />
+    <ProjectReference Include="..\StorageManager\IOStorage.csproj" />
   </ItemGroup>
 
 </Project>
