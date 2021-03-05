@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -10,25 +11,43 @@ namespace PcscNfcSnep.POC
         const byte COMMAND_MEASUREMENT_MESSAGE = 0xAA;
         const byte RESERVED = 0x00;
         public const uint MEASUREMENT_MESSAGE_SIZE = 139;
-        byte Result;
-        byte Object;
-        byte Unit;
-        byte Type;
-        byte Comment;
-        byte MealInformation;
-        byte Second;
-        byte Minute;
-        byte Hour;
-        byte Day;
-        byte Month;
-        UInt16 Year;
-        UInt16 Value;
-        char[] ControlLotNumber = new char[30];
-        char[] StripLotNumber = new char[30];
-        char[] PatientId = new char[30];
-        char[] OperatorId = new char[30];
-        UInt32 SequenceNumber;
 
+        [JsonProperty]
+        byte Result;
+        [JsonProperty]
+        byte Object;
+        [JsonProperty]
+        byte Unit;
+        [JsonProperty]
+        byte Type;
+        [JsonProperty]
+        byte Comment;
+        [JsonProperty]
+        byte MealInformation;
+        [JsonProperty]
+        byte Second;
+        [JsonProperty]
+        byte Minute;
+        [JsonProperty]
+        byte Hour;
+        [JsonProperty]
+        byte Day;
+        [JsonProperty]
+        byte Month;
+        [JsonProperty]
+        UInt16 Year;
+        [JsonProperty]
+        UInt16 Value;
+        [JsonProperty]
+        char[] ControlLotNumber = new char[30];
+        [JsonProperty]
+        char[] StripLotNumber = new char[30];
+        [JsonProperty]
+        char[] PatientId = new char[30];
+        [JsonProperty]
+        char[] OperatorId = new char[30];
+        [JsonProperty]
+        UInt32 SequenceNumber;
         List<MeasurementMessage> measurementMessages = new List<MeasurementMessage>();
 
         public List<MeasurementMessage> GetMeasurementMessages()

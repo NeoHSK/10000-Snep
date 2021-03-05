@@ -17,6 +17,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using IOStorage;
 
 namespace PcscNfcSnep
 {
@@ -145,13 +146,15 @@ namespace PcscNfcSnep
                             break;
                 }
 
-                string output = JsonConvert.SerializeObject(measurementMessage.GetMeasurementMessages());
+                List <MeasurementMessage> measurementMessages = measurementMessage.GetMeasurementMessages();
 
-                File.WriteAllText("Results.json",output); 
+                var output = JsonConvert.SerializeObject(measurementMessages);
+
+                StorageManager.FileWrite("JSON.json",output);
 
                 ResultBlock.Text = $"Try - {receiveCnt} \n" +
                     $" Recieved - {measurementMessage.GetMeasurementMessages().Count} \n" +
-                    $" Complete";
+                    $" Complete \n" + output;
             }
 
         }
