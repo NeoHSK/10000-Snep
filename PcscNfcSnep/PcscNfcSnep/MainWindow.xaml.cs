@@ -66,12 +66,28 @@ namespace PcscNfcSnep
 
             byte[] temp = null;
 
-            readerContext.ReaderControl(SNEP.ECommand.Stop, temp);
+            //readerContext.ReaderControl(SNEP.ECommand.Stop, temp);
 
-            ResultBlock.Text = "Stop";
+            //ResultBlock.Text = "Stop";
 
+            string mDir = "D:\\NIPRO_NFC";
+            string relPath = "RESULT";
+            string fullPath = mDir + System.IO.Path.AltDirectorySeparatorChar+ relPath;
+
+            string mDir2 = "D:\\NIPRO_NFC\\";
+            string relPath2 = "RESULT";
+            string fullPath2 = mDir2 + System.IO.Path.DirectorySeparatorChar + relPath2;
+
+            string[] paths = { "C:\\NIPRO_P2P", "RESULT\\", "20210308" };
+
+            string output;
+
+            output = System.IO.Path.Combine(mDir2,relPath2);
+            output = System.IO.Path.Combine(paths);
+
+            ResultBlock.Text = output;
         }
-        
+
         private void Device_Info_Button_Click(object sender, RoutedEventArgs e)
         {
             //TODO NDEF Message 를 만들어서 rawData로 변경하여 Reader에 put하도록 변경
